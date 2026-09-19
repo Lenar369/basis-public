@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import re
 import sys
@@ -11,6 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 UPDATES = ROOT / "updates"
 INDEX = UPDATES / "README.md"
 CHANGELOG = ROOT / "CHANGELOG.md"
+DISTRIBUTION = ROOT / "distribution"
+DZEN = DISTRIBUTION / "dzen"
+MAX = DISTRIBUTION / "max"
+MANIFEST = DISTRIBUTION / "manifest.json"
 
 TITLE = os.getenv("UPDATE_TITLE", "").strip()
 CATEGORY = os.getenv("UPDATE_CATEGORY", "Обновление").strip() or "Обновление"
@@ -52,14 +57,23 @@ def slugify(value: str) -> str:
     value = re.sub(r"[^a-z0-9]+", "-", value).strip("-")
     return value[:80] or "update"
 
-today = datetime.now(timezone.utc).date().isoformat()
+def unique_path(directory: Path, stem: str, suffix: str = ".md") -> Path:
+    path = directory / f"{stem}{suffix}"
+    counter = 2
+    while path.exists():
+        path = directory / f"{stem}-{counter}{suffix}"
+        counter += 1
+    return path
+
+now = datetime.now(timezone.utc)
+today = now.date().isoformat()
 UPDATES.mkdir(parents=True, exist_ok=True)
-base = UPDATES / f"{today}-{slugify(TITLE)}.md"
-page = base
-counter = 2
-while page.exists():
-    page = UPDATES / f"{today}-{slugify(TITLE)}-{counter}.md"
-    counter += 1
+DZEN.mkdir(parents=True, exist_ok=True)
+MAX.mkdir(parents=True, exist_ok=True)
+
+slug = slugify(TITLE)
+stem = f"{today}-{slug}"
+page = unique_path(UPDATES, stem)
 
 details_section = DETAILS or SUMMARY
 audience_section = AUDIENCE or "Пользователи БАЗИС"
@@ -125,4 +139,85 @@ changelog_entry = f"### {today} — {TITLE}\n\n{SUMMARY}\n\n[Подробнее]
 new_current = changelog_entry + ("\n\n" + current if current else "")
 CHANGELOG.write_text(f"{before}{cstart}\n{new_current}\n{cend}{after}", encoding="utf-8")
 
+# Content pack for Zen.
+dzen_path = unique_path(DZEN, page.stem)
+dzen_title = f"{TITLE}: что изменилось в БАЗИС"
+dzen_content = f"""# {dzen_title}
+
+{SUMMARY}
+
+БАЗИС развивается как CRM для строительных, монтажных и производственных компаний. Мы публикуем заметные изменения продукта, чтобы пользователям было понятно, что появилось в системе и где это может пригодиться в ежедневной работе.
+
+## Что изменилось
+
+{details_section}
+
+## Кому это полезно
+
+{audience_section}.
+
+Обновление становится частью общего рабочего пространства БАЗИС — вместе с объектами, заказами, расчётами, сотрудниками, календарём, складом и управленческой информацией.
+
+## Зачем мы это развиваем
+
+Наша задача — уменьшать количество разрозненных таблиц, переписок и ручных действий. Новые функции добавляются в БАЗИС вокруг реальных рабочих процессов компании: от расчёта и заказа до исполнения и контроля результата.
+
+## Посмотреть БАЗИС
+
+Подробнее о системе и доступе к CRM:
+
+[{PRODUCT_LINK}]({PRODUCT_LINK})
+"""
+dzen_path.write_text(dzen_content, encoding="utf-8")
+
+# Short version for MAX.
+max_path = unique_path(MAX, page.stem)
+max_content = f"""# {TITLE}
+
+{SUMMARY}
+
+Что изменилось:
+{details_section}
+
+Для кого: {audience_section}.
+
+БАЗИС объединяет рабочие процессы строительных, монтажных и производственных компаний в одной CRM.
+
+Подробнее: {PRODUCT_LINK}
+"""
+max_path.write_text(max_content, encoding="utf-8")
+
+# Machine-readable queue. Nothing is auto-published from this repository.
+manifest = {"version": 1, "items": []}
+if MANIFEST.exists():
+    try:
+        loaded = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        if isinstance(loaded, dict) and isinstance(loaded.get("items"), list):
+            manifest = loaded
+    except json.JSONDecodeError:
+        pass
+
+item_id = page.stem
+manifest["items"].append({
+    "id": item_id,
+    "created_at": now.isoformat(),
+    "title": TITLE,
+    "category": CATEGORY,
+    "summary": SUMMARY,
+    "audience": audience_section,
+    "product_link": PRODUCT_LINK,
+    "source_update": relative,
+    "dzen": {
+        "status": "draft",
+        "path": dzen_path.relative_to(ROOT).as_posix(),
+    },
+    "max": {
+        "status": "draft",
+        "path": max_path.relative_to(ROOT).as_posix(),
+    },
+})
+MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
 print(f"Created {relative}")
+print(f"Created {dzen_path.relative_to(ROOT).as_posix()}")
+print(f"Created {max_path.relative_to(ROOT).as_posix()}")

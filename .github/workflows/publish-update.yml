@@ -1,0 +1,85 @@
+name: Publish public update
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Название обновления"
+        required: true
+        type: string
+      category:
+        description: "Категория"
+        required: true
+        default: "Новая функция"
+        type: choice
+        options:
+          - Новая функция
+          - Улучшение
+          - Интеграция
+          - Обучение
+          - Строительство
+          - Производство
+      summary:
+        description: "Краткое описание"
+        required: true
+        type: string
+      details:
+        description: "Что изменилось"
+        required: false
+        type: string
+      audience:
+        description: "Для кого"
+        required: false
+        type: string
+      product_link:
+        description: "Ссылка"
+        required: false
+        default: "https://calcul369.ru"
+        type: string
+
+  repository_dispatch:
+    types: [publish_update]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: public-update-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate public update
+        env:
+          UPDATE_TITLE: ${{ github.event.inputs.title || github.event.client_payload.title }}
+          UPDATE_CATEGORY: ${{ github.event.inputs.category || github.event.client_payload.category || 'Обновление' }}
+          UPDATE_SUMMARY: ${{ github.event.inputs.summary || github.event.client_payload.summary }}
+          UPDATE_DETAILS: ${{ github.event.inputs.details || github.event.client_payload.details }}
+          UPDATE_AUDIENCE: ${{ github.event.inputs.audience || github.event.client_payload.audience }}
+          UPDATE_PRODUCT_LINK: ${{ github.event.inputs.product_link || github.event.client_payload.product_link || 'https://calcul369.ru' }}
+        run: python scripts/publish_update.py
+
+      - name: Commit publication
+        run: |
+          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo "Nothing to publish"
+            exit 0
+          fi
+
+          git config user.name "basis-public-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add updates CHANGELOG.md
+          git commit -m "Публичное обновление: ${UPDATE_TITLE}"
+          git push
+        env:
+          UPDATE_TITLE: ${{ github.event.inputs.title || github.event.client_payload.title }}

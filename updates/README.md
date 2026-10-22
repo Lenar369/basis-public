@@ -5,5 +5,5 @@
 Новые записи создаются автоматически через GitHub Actions.
 
 <!-- AUTO-UPDATE-INDEX:START -->
-Пока автоматических публикаций нет.
+- **2026-10-22 — [Базис Android 1.0.1 — исправление запуска](2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska.md)** — # Базис Android 1.0.1 — исправление запуска
 <!-- AUTO-UPDATE-INDEX:END -->

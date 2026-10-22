@@ -1,4 +1,23 @@
 {
   "version": 1,
-  "items": []
+  "items": [
+    {
+      "id": "2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska",
+      "created_at": "2026-10-22T07:08:53.244488+00:00",
+      "title": "Базис Android 1.0.1 — исправление запуска",
+      "category": "Обновление",
+      "summary": "# Базис Android 1.0.1 — исправление запуска",
+      "audience": "Пользователи БАЗИС",
+      "product_link": "https://github.com/Lenar369/Kalkulytor/releases/tag/android-v1.0.1",
+      "source_update": "updates/2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska.md",
+      "dzen": {
+        "status": "draft",
+        "path": "distribution/dzen/2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska.md"
+      },
+      "max": {
+        "status": "draft",
+        "path": "distribution/max/2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska.md"
+      }
+    }
+  ]
 }

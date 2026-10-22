@@ -5,6 +5,11 @@
 ## Автоматические публичные обновления
 
 <!-- AUTO-PUBLIC-UPDATES:START -->
+### 2026-10-22 — Базис Android 1.0.1 — исправление запуска
+
+# Базис Android 1.0.1 — исправление запуска
+
+[Подробнее](updates/2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska.md)
 <!-- AUTO-PUBLIC-UPDATES:END -->
 
 ## Сентябрь 2026

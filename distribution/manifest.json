@@ -11,8 +11,11 @@
       "product_link": "https://github.com/Lenar369/Kalkulytor/releases/tag/android-v1.0.1",
       "source_update": "updates/2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska.md",
       "dzen": {
-        "status": "draft",
-        "path": "distribution/dzen/2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska.md"
+        "status": "published",
+        "path": "distribution/dzen/2026-10-22-bazis-android-1-0-1-ispravlenie-zapuska.md",
+        "published_at": "2026-10-26T12:03:14+00:00",
+        "published_via": "https://calcul369.ru/rss/dzen.xml",
+        "site_url": "https://calcul369.ru/articles/basis-bazis-android-1-0-1-ispravlenie-zapuska/"
       },
       "max": {
         "status": "draft",
